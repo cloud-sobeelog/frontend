@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import Header from '../components/common/Header2';
 import { client } from '../libs/api';
 import {useNavigate} from 'react-router-dom';
+import axios from 'axios';
+
 
 function Join() {
     const navigate = useNavigate();
@@ -37,11 +39,24 @@ function Join() {
             password2: password2,
             nickname: JSON.stringify(nickname),
         }
-        const {data} =  await client.post(`/user/join`,{...postData});
-        console.log(data);
-        if(data.success){
-            navigate('/login');
+        try{
+            const {data} =  await client.post(`/user/join`,{...postData});
+            console.log(data.message);
+            if(data.success){
+                alert("회원가입 성공");
+                navigate('/login');
+            }
+            else{
+                alert(data.message);
+            }
+        } catch(error){
+            if(axios.isAxiosError(error)){
+                alert(error.response.data.message);
+            }
         }
+        // else{
+        //     console.log(data.response);
+        // }
     }
     return (
         <StyledJoin>
