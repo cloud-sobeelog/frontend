@@ -25,7 +25,7 @@ function Login() {
             email: JSON.stringify(email),
             password: password,
         }
-        const {data} =  await client.post(`/auth/login`,{...postData});
+        const {data} =  await client.post(`/user/login`,{...postData});
         sessionStorage.setItem("user",JSON.stringify(data.data));
         navigate('/feed');
         // const user = JSON.parse(sessionStorage.getItem("user"));

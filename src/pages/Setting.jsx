@@ -1,24 +1,38 @@
+import React,{useEffect, useState} from 'react';
 import styled from 'styled-components';
 import Navigator from '../components/common/Navigator';
 import Header from '../components/common/Header';
 import { ICProfile } from '../assets';
 import {useNavigate} from 'react-router-dom';
+import { client } from '../libs/api';
 
 function Setting() {
+    const [userInfo, setUserInfo] = useState();
     const user = JSON.parse(sessionStorage.getItem("user"));
+
+    const getUserData = async() => {
+        const {data} = await client.get(`/user/userInfo/${user.userID}`);
+        setUserInfo(data.data[0]);
+    }
+    
+
     const navigate = useNavigate();
     const logoutClickHandler = () => {
         navigate('/login');
         sessionStorage.removeItem("user");
     }
     
+    useEffect(() => {
+        getUserData();
+    },[]);
+
     return (
         <StyledSetting>
             <Header/>
             <Navigator category="setting" />
             <StyledBox1>
                 <StyledProfile></StyledProfile>
-                <StyledText1>{user.nickname}</StyledText1>
+                {userInfo && <StyledText1> {userInfo.nickname} </StyledText1>}
                 {/* <StyledText2>한 달 목표 소비액</StyledText2> */}
                 <StyledBox2>프로필 설정</StyledBox2>
                 <StyledBox2>비밀번호 변경</StyledBox2>
