@@ -20,7 +20,7 @@ function FriendSearch() {
           console.log("[검색어]:" + keyword);
           const response = await client.get(`/friends/search`, {
             params: {
-              userid: user.userID,
+              userId: user.userID,
               nickname: keyword
             }
           });
@@ -39,7 +39,6 @@ function FriendSearch() {
       useEffect(() => {
       }, [searchResults]);
       
-           
 
     return (
         <StyledFriend>

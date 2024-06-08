@@ -12,7 +12,7 @@ function Feed() {
     const user = JSON.parse(sessionStorage.getItem("user"));
 
     const getFeedListData = async () => {
-        const {data} = await client.get(`/calendarfeed/${user.userID}`);
+        const {data} = await client.get(`/view/${user.userID}`);
         console.log(data.data.feedList);
         setFeedList(data.data.feedList);
     }

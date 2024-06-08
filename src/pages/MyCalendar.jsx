@@ -22,8 +22,10 @@ function MyCalendar() {
     const [chosenDate, setChosenDate] = useState(defaultDate);
     const [modalOpen, setModalOpen] = useState(false);
     const [todayAmount, setTodayAmount] = useState(0);
+    const [updateView, setUpdateView] = useState(false);
 
     const user = JSON.parse(sessionStorage.getItem("user"));
+    const userID = user?.userID; // 추가적인 null 체크
 
     const openModal = () => {
         setModalOpen(true);
@@ -33,24 +35,45 @@ function MyCalendar() {
         setModalOpen(false);
     }
 
-    const getConsumptionListDataByDate = async () => {
-        const {data} = await client.get(`/mycalendar/date/${chosenDate}/${user.userID}`);
-        console.log("chosenDate",chosenDate);
-        setList(data.data.result);
-    }
+    const getConsumptionListDataByDate = async (date) => {
+        if (!date || !userID) {
+            console.error("Invalid date or userID");
+            return;
+        }
+        try {
+            const { data } = await client.get(`/view/date/${date}/${userID}`);
+            setList(data.data.result);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            // 추가적인 사용자 피드백 로직 (예: 토스트 메시지) 추가 가능
+        }
+    };
     
-    const getTodayAmount = async() => {
-        const hypenNoDate = chosenDate.replaceAll('-','')
-        //TODO: userID 수정해야함
-        const {data} = await client.get(`/mycalendar/amount?date=${hypenNoDate}&&userID=${user.userID}`);
-        console.log(data.data.amount[0].t_amount);
-        setTodayAmount(data.data.amount[0].t_amount);
-    }
+    const getTodayAmount = async (date) => {
+        if (!date || !userID) {
+            console.error("Invalid date or userID");
+            return;
+        }
+        try {
+            const { data } = await client.get(`/consumptions/amount/${date}/${userID}`);
+            JSON.stringify(data);
+            const amount = data.data.amount[0]?.t_amount || 0;
+            
+            setTodayAmount(amount);
+        } catch (error) {
+            console.error("Error fetching amount data:", error);
+            // 추가적인 사용자 피드백 로직 (예: 토스트 메시지) 추가 가능
+        }
+    };
 
     useEffect(()=> {
         getConsumptionListDataByDate(chosenDate);
         getTodayAmount(chosenDate);
-    },[chosenDate])
+    },[chosenDate, updateView])
+
+    const forceUpdateView = () => {
+        setUpdateView(prev => !prev);
+    }
 
     return (
         <>
@@ -69,7 +92,7 @@ function MyCalendar() {
             </StyledConsumptionList>
             <StyledButton>
                 <ICAddButton onClick={openModal}/>
-                <ConsumptionModal open={modalOpen} close={closeModal} date={chosenDate}/>
+                <ConsumptionModal open={modalOpen} close={closeModal} date={chosenDate} forceUpdateView={forceUpdateView}/>
             </StyledButton>
         </StyledMyCalendar>
         <Navigator category="calendar" />

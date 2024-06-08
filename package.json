@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.4.0",
     "date-fns": "^2.30.0",
+    "https": "^1.0.0",
     "nodemon": "^2.0.22",
     "query-string": "^8.1.0",
     "react": "^18.2.0",

@@ -34,7 +34,7 @@ const CheckButton = ({children, isChecked, onChange}) => {
     )
 }
 
-function ConsumptionModal({open, close, date}){
+function ConsumptionModal({open, close, date, forceUpdateView}){
     const tagContentList = ['쇼핑', '음식', '생필품', '취미', '교통', '경조사'];
     const [content, setContent]  = useState();
     const [price, setPrice] = useState();
@@ -67,28 +67,35 @@ function ConsumptionModal({open, close, date}){
     const submitFormHandler = async (event) => {
         event.preventDefault();
         console.log(date);
+        console.log(user.userID);
         const postData = {
             userID: user.userID,
-            date: JSON.stringify(date),
-            content: JSON.stringify(content),
-            amount: JSON.stringify(price),
-            category: JSON.stringify(tagContent),
+            date: date,
+            content: content,
+            amount: price,
+            category: tagContent,
             secret: secret,
         }
-        const {data} =  await client.post(`/consumptions`,{...postData});
+        const {data} =  await client.post(`/consumptions/`,{...postData});
+        console.log(data);
         if(data.success){
             close();
-            window.location.replace("/calendar");
+            forceUpdateView(true);
+            // window.location.replace("/calendar");
         }
     }
 
-    useEffect(()=>{
-        setContent();
-        setPrice();
-        setSecret(false);
-        setTagContent('');
-    },[])
-
+    useEffect(() => {
+        if (open) {
+            setContent('');
+            setPrice('');
+            setSecret(false);
+            setTagContent('');
+            setIsTagClicked(Array(tagContentList.length).fill(false));
+            setCheck(false);
+        }
+    }, [open]);
+    
     return(
         <>
             {open ? (

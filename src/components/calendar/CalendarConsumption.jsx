@@ -8,7 +8,7 @@ import CommentInput from '../comment/CommentInput';
 function CalendarConsumption({info, onClick}){
     const [content, setContent] = useState(info);
     console.log(content);
-    const commentArray = content.comment.slice(0,1);
+    const commentArray = content.comment ? content.comment.slice(0, 1) : [];
     console.log(commentArray);
     // TODO : userID에 따라서 닉네임 가져오는 과정이 있어야함
     return(
@@ -48,7 +48,7 @@ function CalendarConsumption({info, onClick}){
                 (typeof(content.category)=='string') ? <Tag content={content.category}/> : content.category.map((element)=> <Tag content={element}/>)
             }
 
-            {(content.comment.length >= 1) ? <StyledCommentArea>
+            {(commentArray.length >= 1) ? <StyledCommentArea>
                     {content.comment && commentArray.map((element)=>{
                             console.log("여기",element);
                             return <CommentArea comment={element}/>

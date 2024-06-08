@@ -17,6 +17,10 @@ function ConsumptionDetail(){
     const [status, setStatus] = useState(parseInt(10));
     const [consumptionDetail, setConsumptionDetail] = useState();
     const [comment, setComment] = useState();
+    const [emoticonCount, setEmoticonCount] = useState({
+        positiveEmoticonCount: 0,
+        negativeEmoticonCount: 0
+    });
     const [replyActive, setReplyActive] = useState(false);
     const [replyCommentInfo, setReplyCommentInfo] = useState([]);
     const navigate = useNavigate();
@@ -24,7 +28,14 @@ function ConsumptionDetail(){
 
     const getConsumptionDetailData = async () => {
         const {data} = await client.get(`/consumptions/${cHistoryID}`);
-        data.data && setConsumptionDetail(data.data);
+        const userData = await client.get(`/user/userInfo/${data.data.userID}`);
+        
+        const consumptionDetail = {
+            nickname: userData.data.data[0].nickname,
+            ...data.data,
+        }
+        data.data && setConsumptionDetail(consumptionDetail);
+        console.log(userData.data.data[0].nickname);
         console.log(consumptionDetail);
     }
     
@@ -34,14 +45,29 @@ function ConsumptionDetail(){
     }
 
     const getEmoticonData = async() => {
-        const {data} = await client.get(`/emoticon/${cHistoryID}/${user.userID}`);
+        const {data} = await client.get(`/emoticon/${cHistoryID}/user/${user.userID}`);
+        console.log(data);
         setStatus(data.data[0].category);
+    }
+
+    const getEmoticonCountData = async() => {
+        const positiveData = await client.get(`/emoticon/${cHistoryID}/0`);
+        const positiveEmoticonCount = positiveData.data.data;
+
+        const negativeData = await client.get(`/emoticon/${cHistoryID}/1`);
+        const negativeEmoticonCount = negativeData.data.data;
+        
+        setEmoticonCount({
+            positiveEmoticonCount: positiveEmoticonCount,
+            negativeEmoticonCount: negativeEmoticonCount,
+        })
     }
 
     useEffect(() => {
         getConsumptionDetailData();
         getCommentData();
         getEmoticonData();
+        getEmoticonCountData();
     },[]);
     
     const onClickHandler = async(category) => {
@@ -86,7 +112,7 @@ function ConsumptionDetail(){
 
                 <StyledEmoticon>
                     <StyledGoodEmoticon>
-                        <p>{consumptionDetail && consumptionDetail.positiveEmoticonCount}</p>
+                        <p>{emoticonCount && emoticonCount.positiveEmoticonCount}</p>
                         <p>칭찬해요</p>
                         {(parseInt(status)===10) ? <ICGoodEmoticon width="25" height="25" stroke="white" fillOpacity={0.3} onClick={()=>onClickHandler(0)}/> :
                             (parseInt(status)===0) ? <ICGoodEmoticon width="25" height="25" stroke="white" stroke-width="0.6" strokeOpacity={1} fillOpacity={1} onClick={()=>onClickHandler(0)}/>: 
@@ -97,7 +123,7 @@ function ConsumptionDetail(){
                             (parseInt(status)===0) ? <ICBadEmoticon width="25" height="25" stroke="white" fillOpacity={0.3} onClick={()=>onClickHandler(1)}/> :
                                 <ICBadEmoticon width="25" height="25" stroke="white" stroke-width="0.6" strokeOpacity={1} fillOpacity={1} onClick={()=>onClickHandler(1)}/>}
                         <p>아쉬워요</p>
-                        <p>{consumptionDetail && consumptionDetail.negativeEmoticonCount}</p>
+                        <p>{emoticonCount && emoticonCount.negativeEmoticonCount}</p>
                     </StyledBadEmoticon>
                 </StyledEmoticon>
                 <StyledLightLine/>
@@ -117,7 +143,6 @@ function ConsumptionDetail(){
                                             답글달기
                                         </StyledReplyButton>
                                         {comment.map(replyElement => {
-                                            console.log(replyElement);
                                             return(
                                                 (replyElement.replyID===element.commentID) ? <StyledReply>
                                                     <ICProfile width="31" height="32"/>

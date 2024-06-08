@@ -39,7 +39,7 @@ function CommentInput({cHistoryID, replyActive, replyCommentInfo}){
             content: JSON.stringify(comment),
             replyID: replyCommentInfo.commentID,
         }
-        const {data} =  await client.post(`/comment/${cHistoryID}`,{...postData});
+        const {data} =  await client.post(`/comment/${cHistoryID}/`,{...postData});
         if(data.success){
             window.location.reload();
         }
